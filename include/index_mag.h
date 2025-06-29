@@ -454,21 +454,20 @@ namespace MAG {
         unsigned range = parameters.Get<unsigned>("R");
         std::vector<std::mutex> locks(nd_);
 
-        #pragma omp parallel
-          {
             // unsigned cnt = 0;
+
+        #pragma omp parallel for
+          for (unsigned n = 0; n < nd_; ++n) {
+            // std::cout << "sync prune: " << n << std::endl;
             std::vector<Neighbor> pool, tmp;
             boost::dynamic_bitset<> flags{nd_, 0};
-        #pragma omp for schedule(dynamic, 100)
-            for (unsigned n = 0; n < nd_; ++n) {
-              pool.clear();
-              tmp.clear();
-              flags.reset();
-              get_nn_neighbors(data_ + dimension_ * n, parameters, flags, tmp, pool);
-              sync_prune(n, pool, parameters, flags, cut_graph_);
-            }
+            pool.clear();
+            tmp.clear();
+            flags.reset();
+            get_nn_neighbors(data_ + dimension_ * n, parameters, flags, tmp, pool);
+            sync_prune(n, pool, parameters, flags, cut_graph_);
           }
-        #pragma omp for schedule(dynamic, 100)
+        #pragma omp parallel for
           for (unsigned n = 0; n < nd_; ++n) {
             InterInsert(n, range, locks, cut_graph_);
           }
@@ -558,6 +557,7 @@ namespace MAG {
           std::string nn_graph_path = parameters.Get<std::string>("nn_graph_path");
           unsigned range = parameters.Get<unsigned>("R");
           unsigned threshold = parameters.Get<unsigned>("threshold");
+          unsigned M = parameters.Get<unsigned>("M");
           Load_nn_graph(nn_graph_path.c_str());
           data_ = data;
           init_graph(parameters);
@@ -606,7 +606,7 @@ namespace MAG {
             }
             for (auto neighbor: ip_graph_[i]){
               dup.insert(neighbor);
-              if (dup.size() >= range) {
+              if (dup.size() >= M) {
                 break;
               }
             }
