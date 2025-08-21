@@ -2,6 +2,8 @@
 
 This repository contains the source code for our SIGIR2025 paper: **Stitching Inner Product and Euclidean Metrics for Topology-aware Maximum Inner Product Search**.
 
+**If you're interested, you can also check out our theoretical work: [VLDB2025 PSP](https://github.com/ZJU-DAILY/PSP)**
+
 ## 1 Abstract
 
 Our investigation, grounded in graph-based search, reveals that different indexing and search strategies offer distinct advantages for MIPS, depending on the underlying data topology. Building on these insights, we introduce a novel graph-based index called Metric-Amphibious Graph (MAG) and a corresponding search algorithm, Adaptive Navigation with Metric Switch (ANMS). To facilitate parameter tuning for optimal performance, we identify three statistical indicators that capture essential data topology properties and correlate strongly with parameter tuning. 
@@ -68,19 +70,20 @@ Firstly, we need to prepare a kNN graph.  You can use Faiss and other libs.
 #### Step 2. MAG indexing
 
 ```shell
-./test/test_mag_index DATA_PATH KNNG_PATH L R C INDEX_PATH MODE DIM R_IP M T
+./test/test_mag_index DATA_PATH KNNG_PATH L R C INDEX_PATH MODE DIM R_IP M THRESHOLD
 ```
 
 - `DATA_PATH` is the path of the base data in `bin` format.
 - `KNNG_PATH` is the path of the pre-built kNN graph in *Step 1.*.
-- `L` inital pool size.
-- `R`maximum out-degree.
+- `L` inital search pool size.
+- `R` maximum out-degree for NN.
 - `C` candidate pool size.
 - `INDEX_PATH` is the path of the generated MAG index.
 - `MODE` index.
 - `DIM` dimension of dataset.
-- `R_IP` max ip_neighbors.
-- `T` ip threshold.
+- `R_IP` maximum out-degree for IP.
+- `M` maximum out-degree.
+- `THRESHOLD` ip threshold for approximation (Strictly = 1, but > 1 works better).
 
 #### Step 3. Adaptive Navigation with Metric Switch
 
@@ -96,7 +99,16 @@ Firstly, we need to prepare a kNN graph.  You can use Faiss and other libs.
 - `MODE` search.
 - `DIM` dimension of dataset.
 
-## 6 Performance
+## 6 To-Do Lists
+- ✅ Open-source code for the major components of the original paper  
+- ✅ Support for a wider range of datasets with diverse norm distributions  
+- 🔄 Vector compression acceleration (coming soon)  
+- 🔄 Hierarchical graph structure for inner product (coming soon)  
+- 🔄 Partition algorithm integration (coming soon) 
+- 🔄 Adaptive early stopping strategy (coming soon) 
+- 🔄 Python wrapper.
+
+## 7 Performance
 
 #### Evaluation Metric
 
