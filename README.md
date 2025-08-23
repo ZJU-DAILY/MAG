@@ -115,3 +115,19 @@ Firstly, we need to prepare a kNN graph.  You can use Faiss and other libs.
 - QPS
 
 ![evaluation](./evaluation.png)
+
+## 8 Citation
+
+```tex
+@inproceedings{chen2025stitching,
+  title={Stitching Inner Product and Euclidean Metrics for Topology-aware Maximum Inner Product Search},
+  author={Chen, Tingyang and Fu, Cong and Ke, Xiangyu and Gao, Yunjun and Ni, Yabo and Zeng, Anxiang},
+  booktitle={Proceedings of the 48th International ACM SIGIR Conference on Research and Development in Information Retrieval},
+  pages={2341--2350},
+  year={2025}
+}
+```
+
+## 9 Contact
+
+If you're interested in our work and future collaboration opportunities, feel free to reach out to Tingyang Chen at chenty@zju.edu.cn or Cong Fu at fc731097343@gmail.com

@@ -41,8 +41,6 @@ public:
     size_t neighbor_len;
     CompactGraph final_graph_;
     CompactGraph ip_graph_;
-    std::vector<bool> is_out_dominantor_;
-    std::vector<bool> is_self_dominantor_;
     std::vector<std::pair<float, unsigned>> entries;
     
 
@@ -50,8 +48,6 @@ public:
         data_ = nullptr;
         distance_ = std::make_unique<DistanceL2>();
         distance_ip_ = std::make_unique<DistanceInnerProduct>();
-        is_out_dominantor_.resize(nd_);
-        is_self_dominantor_.resize(nd_);
     }
     
 
@@ -465,23 +461,16 @@ public:
         boost::dynamic_bitset<> flags(nd_, 0);
         std::sort(pool.begin(), pool.end());
         std::vector<IpNeighbor> result;
+        std::vector<unsigned> prune_result;
         std::unordered_map<unsigned,float> self_dist_map;
         unsigned real_m = 0;
-        auto cur_ip = distance_ip_->compare(data_ + dimension_ * cur_point,
-                                            data_ + dimension_ * cur_point,
-                                            (unsigned)dimension_);
-        
-        if (!pool.empty() && cur_ip >= pool[start].distance) {
-            is_self_dominantor_[cur_point] = true;
-        }
 
         while (start < pool.size() && real_m < threshold) {
             if (pool[start].id == cur_point) {
                 start++;
                 continue;
             }
-            is_out_dominantor_[pool[start].id] = true; 
-            result.push_back(pool[start]);
+            prune_result.push_back(pool[start].id);
             real_m++;
 
             auto ip_self = distance_ip_->compare(data_ + dimension_ * pool[start].id,
@@ -490,7 +479,8 @@ public:
             self_dist_map[pool[start].id] = ip_self; 
             start++; 
         }
-
+        // The most standard approach is to perform two complete for loops to select the local self-dominator nodes. 
+        // However, for better efficiency, we modified the edge selection logic from the paper.
         while (real_m < R_IP && (++start) < pool.size()) {
             if(pool[start].id == cur_point) {
                 continue;
@@ -516,6 +506,7 @@ public:
                     occlude = true;
                     break;
                 }
+
                 if (self_dist_map[nid] < ip && real_m > threshold) {
                     flags[nid] = true;
                     real_m--;
@@ -526,7 +517,7 @@ public:
                 real_m++;
             }
         }
-        std::vector<unsigned> prune_result;
+
         for (auto i = 0; i < result.size(); i++) {
             if (prune_result.size() >= R_IP) {
                 break;
